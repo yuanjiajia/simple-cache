@@ -36,7 +36,7 @@ public class CacheStringAspect {
     @Autowired
     private RedisHelper redisHelper;
 
-    @Pointcut("@annotation(com.hccake.simpleredis.string.CacheForString)")
+    @Pointcut("@annotation(com.hccake.simpleredis.Cached)")
     public void pointCut() {}
 
     @Around("pointCut()")

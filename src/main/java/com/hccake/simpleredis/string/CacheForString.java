@@ -1,5 +1,6 @@
 package com.hccake.simpleredis.string;
 
+import com.hccake.simpleredis.Cached;
 import com.hccake.simpleredis.core.OpType;
 import com.hccake.simpleredis.core.RedisCons;
 
@@ -15,6 +16,7 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Cached
 public @interface CacheForString {
 
     /**
