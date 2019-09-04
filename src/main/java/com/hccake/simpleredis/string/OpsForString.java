@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 public class OpsForString extends CacheOps {
 
     /**
-     * 生成并返回一个 OpsForString 对象
+     * 生成并返回一个 OpsForMultiString 对象
      * @param cacheForString  注解
      * @param keyGenerator    key 生成方法
      * @param pointMethod     织入方法
@@ -40,18 +40,19 @@ public class OpsForString extends CacheOps {
         if(OpType.CACHED.equals(opType)){
             //redis 分布式锁的 key
             String lockKey = key + RedisCons.LOCK_KEY_SUFFIX;
-            Supplier cacheQuery = () -> redisHelper.get(key);
-            Consumer<String> cachePut = value -> redisHelper.setex(key, value, cacheForString.ttl());
-
             this.setLockKey(lockKey);
+
+            Supplier cacheQuery = () -> redisHelper.get(key);
             this.setCacheQuery(cacheQuery);
+
+            Consumer<Object> cachePut = value -> redisHelper.setex(key, (String)value, cacheForString.ttl());
             this.setCachePut(cachePut);
 
         }
 
         // PUT 操作需要的属性
         if(OpType.PUT.equals(opType)) {
-            Consumer<String> cachePut = value -> redisHelper.setex(key, value, cacheForString.ttl());
+            Consumer<Object> cachePut = value -> redisHelper.setex(key, (String)value, cacheForString.ttl());
             this.setCachePut(cachePut);
         }
 

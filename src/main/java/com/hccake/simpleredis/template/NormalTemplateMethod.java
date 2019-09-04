@@ -1,6 +1,7 @@
-package com.hccake.simpleredis.core;
+package com.hccake.simpleredis.template;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hccake.simpleredis.core.CacheOps;
+import com.hccake.simpleredis.core.RedisCons;
 import com.hccake.simpleredis.function.ResultMethod;
 
 import java.io.IOException;
@@ -11,59 +12,7 @@ import java.util.function.Supplier;
  *
  * @author wubo, Hccake
  */
-public class TemplateMethod {
-
-    /**
-     * jackson序列化
-     */
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-
-    /**
-     * 根据 操作类型 执行对应模板方法
-     * @param ops  操作集
-     * @param opType  操作类型
-     * @return
-     * @throws IOException
-     */
-    public static Object runByOpType(CacheOps ops, OpType opType) throws IOException {
-        switch (opType) {
-            case CACHED:
-                return TemplateMethod.cached(ops);
-            case PUT:
-                return TemplateMethod.cachePut(ops);
-            case DEL:
-                return TemplateMethod.cacheDel(ops);
-            default:
-                return null;
-        }
-    }
-
-
-
-
-    /**
-     * 反序列化方法
-     *
-     * @param cacheData
-     * @param clazz
-     * @return
-     * @throws IOException
-     */
-    public static Object deserialization(String cacheData, Class<?> clazz) throws IOException {
-        return OBJECT_MAPPER.readValue(cacheData, clazz);
-    }
-
-    /**
-     * 序列化方法
-     *
-     * @param cacheData
-     * @return
-     * @throws IOException
-     */
-    public static String serialize(Object cacheData) throws IOException {
-        return OBJECT_MAPPER.writeValueAsString(cacheData);
-    }
+public class NormalTemplateMethod extends AbstractTemplateMethod{
 
 
     /**
@@ -76,7 +25,8 @@ public class TemplateMethod {
      * @return
      * @throws IOException
      */
-    public static Object cached(CacheOps ops) throws IOException {
+    @Override
+    public Object cached(CacheOps ops) throws IOException {
 
         //缓存查询方法
         Supplier<String> cacheQuery = ops.cacheQuery();
@@ -127,7 +77,8 @@ public class TemplateMethod {
     /**
      * 缓存操作模板方法
      */
-    public static Object cachePut(CacheOps ops) throws IOException {
+    @Override
+    public Object cachePut(CacheOps ops) throws IOException {
 
         //先执行目标方法  并拿到返回值
         ResultMethod<Object> pointMethod = ops.pointMethod();
@@ -145,7 +96,8 @@ public class TemplateMethod {
      * 缓存删除的模板方法
      * 在目标方法执行后 执行删除
      */
-    public static Object cacheDel(CacheOps ops) throws IOException {
+    @Override
+    public Object cacheDel(CacheOps ops) throws IOException {
 
         //先执行目标方法  并拿到返回值
         ResultMethod<Object> pointMethod = ops.pointMethod();

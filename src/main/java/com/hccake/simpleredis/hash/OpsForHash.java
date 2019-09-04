@@ -41,17 +41,18 @@ public class OpsForHash extends CacheOps {
         if(OpType.CACHED.equals(opType)){
             //redis 分布式锁的 key
             String lockKey = key + field + RedisCons.LOCK_KEY_SUFFIX;
-            Supplier cacheQuery = () -> redisHelper.hget(key, field);
-            Consumer<String> cachePut = value -> redisHelper.hset(key, field, value);
-
             this.setLockKey(lockKey);
+
+            Supplier cacheQuery = () -> redisHelper.hget(key, field);
             this.setCacheQuery(cacheQuery);
+
+            Consumer<Object> cachePut = value -> redisHelper.hset(key, field, (String)value);
             this.setCachePut(cachePut);
         }
 
         // PUT 操作需要的属性
         if(OpType.PUT.equals(opType)) {
-            Consumer<String> cachePut = value -> redisHelper.hset(key, field, value);
+            Consumer<Object> cachePut = value -> redisHelper.hset(key, field, (String)value);
             this.setCachePut(cachePut);
         }
 

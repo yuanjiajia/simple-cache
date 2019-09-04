@@ -1,9 +1,10 @@
-package com.hccake.simpleredis.string;
+package com.hccake.simpleredis.hash;
 
 import com.hccake.simpleredis.RedisHelper;
 import com.hccake.simpleredis.core.CacheOps;
 import com.hccake.simpleredis.core.KeyGenerator;
-import com.hccake.simpleredis.core.TemplateMethod;
+import com.hccake.simpleredis.template.NormalTemplateMethod;
+import com.hccake.simpleredis.template.TemplateMethod;
 import com.hccake.simpleredis.function.ResultMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -19,21 +20,29 @@ import java.lang.reflect.Method;
 
 /**
  * @author Hccake
- * @date 2019/8/31 18:01
  * @version 1.0
+ * @date 2019/8/31 18:01
  */
 @Aspect
 @Component
 @Slf4j
-public class CachedStringAspect {
+public class CacheHashAspect {
+
+    /**
+     * 模板方法
+     */
+    private static TemplateMethod templateMethod = new NormalTemplateMethod();
 
     @Autowired
     private RedisHelper redisHelper;
 
-    @Pointcut("@annotation(com.hccake.simpleredis.string.CacheForString)")
-    public void cachedStringPointCut() {}
 
-    @Around("cachedStringPointCut()")
+    @Pointcut("@annotation(com.hccake.simpleredis.hash.CacheForHash)")
+    public void pointCut() {
+    }
+
+
+    @Around("pointCut()")
     public Object around(ProceedingJoinPoint point) throws Throwable {
 
 
@@ -41,7 +50,7 @@ public class CachedStringAspect {
         MethodSignature signature = (MethodSignature) point.getSignature();
         Method method = signature.getMethod();
 
-        log.debug("=======The string cache aop is executed! method : {}", method.getName());
+        log.debug("=======The hash cache aop is executed! method : {}", method.getName());
 
         //方法返回值
         Class<?> returnType = method.getReturnType();
@@ -54,18 +63,17 @@ public class CachedStringAspect {
         // 织入方法
         ResultMethod<Object> pointMethod = CacheOps.genPointMethodByPoint(point);
 
+
         //获取注解对象
-        CacheForString cacheForString = AnnotationUtils.getAnnotation(method, CacheForString.class);
+        CacheForHash cacheForHash = AnnotationUtils.getAnnotation(method, CacheForHash.class);
 
         //获取操作类
-        CacheOps ops = new OpsForString(cacheForString, keyGenerator, pointMethod, returnType, redisHelper);
+        CacheOps ops = new OpsForHash(cacheForHash, keyGenerator, pointMethod, returnType, redisHelper);
 
         //执行对应模板方法
-        return TemplateMethod.runByOpType(ops, cacheForString.type());
+        return templateMethod.runByOpType(ops, cacheForHash.type());
 
     }
-
-
 
 
 }
