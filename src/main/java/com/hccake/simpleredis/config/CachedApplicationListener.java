@@ -1,6 +1,6 @@
 package com.hccake.simpleredis.config;
 
-import com.hccake.simpleredis.hash.CacheHashAspect;
+import com.hccake.simpleredis.string.CacheStringAspect;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.BeansException;
@@ -44,7 +44,7 @@ public class CachedApplicationListener implements ApplicationListener {
         @Override
         public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
             try {
-                Method declaredMethod = CacheHashAspect.class.getDeclaredMethod("cacheHashPointCut");
+                Method declaredMethod = CacheStringAspect.class.getDeclaredMethod("pointCut");
                 modifyExpression(declaredMethod);
             } catch (Exception e) {
                 log.error(e.getMessage());
@@ -65,7 +65,7 @@ public class CachedApplicationListener implements ApplicationListener {
             int size = deriveSource.size();
             StringBuilder buffer = new StringBuilder();
             for (int i = 0; i < size; i++) {
-                if (size > 1 && i == 0) {
+                if (i == 0) {
                     buffer.append("@annotation(").append(deriveSource.get(i).getName()).append(")");
                 } else {
                     buffer.append(" || @annotation(").append(deriveSource.get(i).getName()).append(")");
