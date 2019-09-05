@@ -31,8 +31,9 @@ public class CachedApplicationListener implements ApplicationListener {
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-        if (cachedDeriveSource.isEnableSimpleCache()) {
+        if (!cachedDeriveSource.isEnableSimpleCache()) {
             // 未启用 EnableSimpleCache
+            log.debug("未启用 EnableSimpleCache");
             return;
         }
 
