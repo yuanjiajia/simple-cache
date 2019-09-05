@@ -12,6 +12,12 @@ public class CachedDeriveSource {
 
     private ArrayList<? extends Class<?>> deriveSource;
 
+    private boolean enableSimpleCache;
+
+    public static void setInstance(CachedDeriveSource instance) {
+        CachedDeriveSource.instance = instance;
+    }
+
     private static CachedDeriveSource instance = new CachedDeriveSource();
 
     private CachedDeriveSource() {}
@@ -26,5 +32,13 @@ public class CachedDeriveSource {
 
     public void setDeriveSource(ArrayList<? extends Class<?>> deriveSource) {
         this.deriveSource = deriveSource;
+    }
+
+    public boolean isEnableSimpleCache() {
+        return enableSimpleCache;
+    }
+
+    public void setEnableSimpleCache(boolean enableSimpleCache) {
+        this.enableSimpleCache = enableSimpleCache;
     }
 }

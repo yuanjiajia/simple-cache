@@ -37,10 +37,16 @@ public class CachedDeriveDefinitionRegistry implements ImportBeanDefinitionRegis
 
     private static final String RESOURCE_PATTERN = "/**/*.class";
 
-
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importMetadata, BeanDefinitionRegistry registry) {
         Map<String, Object> metadataAnnotationAttributes = importMetadata.getAnnotationAttributes(EnableSimpleCache.class.getName());
+
+        CachedDeriveSource cachedDeriveSource = CachedDeriveSource.getInstance();
+        if (metadataAnnotationAttributes == null) {
+            // 未启用 EnableSimpleCache
+            return;
+        }
+        cachedDeriveSource.setEnableSimpleCache(true);
 
         // 获取注册器所有属性
         AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(metadataAnnotationAttributes);
@@ -59,7 +65,7 @@ public class CachedDeriveDefinitionRegistry implements ImportBeanDefinitionRegis
 
         // 从扫描包获取候选人
         ArrayList<? extends Class<?>> candidates = scanPackages(packages);
-        CachedDeriveSource.getInstance().setDeriveSource(candidates);
+        cachedDeriveSource.setDeriveSource(candidates);
     }
 
     /**

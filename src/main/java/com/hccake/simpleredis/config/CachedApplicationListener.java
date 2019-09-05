@@ -27,8 +27,15 @@ import java.util.Map;
 @Slf4j
 public class CachedApplicationListener implements ApplicationListener {
 
+    private CachedDeriveSource cachedDeriveSource = CachedDeriveSource.getInstance();
+
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
+        if (cachedDeriveSource.isEnableSimpleCache()) {
+            // 未启用 EnableSimpleCache
+            return;
+        }
+
         if (event instanceof ApplicationPreparedEvent) {
             onApplicationPreparedEvent((ApplicationPreparedEvent) event);
         }
@@ -39,7 +46,7 @@ public class CachedApplicationListener implements ApplicationListener {
         context.addBeanFactoryPostProcessor(new CachedPostProcessor());
     }
 
-    private static class CachedPostProcessor implements BeanFactoryPostProcessor {
+    private class CachedPostProcessor implements BeanFactoryPostProcessor {
 
         @Override
         public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -61,7 +68,7 @@ public class CachedApplicationListener implements ApplicationListener {
             Map<String, String> values = (Map<String, String>) field.get(handler);
 
             // 拼接表达式
-            ArrayList<? extends Class<?>> deriveSource = CachedDeriveSource.getInstance().getDeriveSource();
+            ArrayList<? extends Class<?>> deriveSource = cachedDeriveSource.getDeriveSource();
             int size = deriveSource.size();
             StringBuilder buffer = new StringBuilder();
             for (int i = 0; i < size; i++) {
