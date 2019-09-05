@@ -3,6 +3,8 @@ package com.hccake.simpleredis;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -17,8 +19,11 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RedisHelper {
 
+    private static final String RELEASE_SUCCESS = "1";
+
     @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
+
 
 
     //=============================common============================
@@ -425,5 +430,20 @@ public class RedisHelper {
      */
     public Double incrbyfloat(String key, double num) {
         return redisTemplate.opsForValue().increment(key, num);
+    }
+
+    /**
+     * Redis执行Lua脚本
+     * @param script
+     * @param singletonList
+     * @param args
+     * @return
+     */
+    public Boolean eval(String script, List<String> singletonList, List<String> args) {
+        String result = redisTemplate.execute(RedisScript.of(script), RedisSerializer.string(), RedisSerializer.string(), singletonList, args);
+        if (RELEASE_SUCCESS.equals(result)) {
+            return true;
+        }
+        return false;
     }
 }
