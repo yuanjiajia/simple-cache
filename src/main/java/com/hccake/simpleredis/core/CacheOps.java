@@ -5,6 +5,7 @@ import com.hccake.simpleredis.function.ResultMethod;
 import com.hccake.simpleredis.function.VoidMethod;
 import org.aspectj.lang.ProceedingJoinPoint;
 
+import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -153,18 +154,24 @@ public abstract class CacheOps {
     }
     /**
      * 上锁
-     *
+     * @param reqId
      * @return
      */
-    public Boolean lock() {
-        return redisHelper.setexnx(lockKey, "1", RedisCons.LOCKED_TIME);
+    public Boolean lock(String reqId) {
+        return redisHelper.setexnx(lockKey, reqId, RedisCons.LOCKED_TIME);
     }
 
     /**
      * 释放Redis锁
+     * @param reqId
+     * @return
      */
-    public void unlock() {
-        redisHelper.del(lockKey);
+    public Boolean unlock(String reqId) {
+        //KEYS【1】：key值是为要加的锁定义的字符串常量
+        //ARGV【1】：value值是 request id, 用来防止解除了不该解除的锁. 可用 UUID
+        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return " +
+                "0 end";
+        return redisHelper.eval(script, Collections.singletonList(lockKey), Collections.singletonList(reqId));
     }
 
 
