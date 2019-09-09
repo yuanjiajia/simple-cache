@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * @author Hccake
@@ -21,13 +22,13 @@ public class JacksonSerializer implements CacheSerializer{
      * 反序列化方法
      *
      * @param cacheData
-     * @param clazz
+     * @param type
      * @return
      * @throws IOException
      */
     @Override
-    public  Object deserialize(String cacheData, Class<?> clazz) throws IOException {
-        return objectMapper.readValue(cacheData, clazz);
+    public  Object deserialize(String cacheData, Type type) throws IOException {
+        return objectMapper.readValue(cacheData, CacheSerializer.getJavaType(type));
     }
 
     /**
@@ -41,5 +42,8 @@ public class JacksonSerializer implements CacheSerializer{
     public  String serialize(Object cacheData) throws IOException {
         return objectMapper.writeValueAsString(cacheData);
     }
+
+
+
 
 }

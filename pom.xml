@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <groupId>com.hccake</groupId>
     <artifactId>simple-cache</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
 
     <properties>
         <spring-boot.version>2.1.7.RELEASE</spring-boot.version>

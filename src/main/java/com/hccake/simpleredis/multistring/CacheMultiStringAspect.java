@@ -56,7 +56,7 @@ public class CacheMultiStringAspect {
         //参照 fastJson TypeRefence的代码
         //因为multi操作 返回值一定是 List<T> 所以直接取第一个就可以
         Type type = method.getGenericReturnType();
-        Class<?> dataClass = type.getTypeName().equals("void")? null: (Class)((ParameterizedType)type).getActualTypeArguments()[0];
+        Type dataType = type.getTypeName().equals("void")? null: ((ParameterizedType)type).getActualTypeArguments()[0];
 
         //根据方法的参数 以及当前类对象获得 keyGenerator
         Object target = point.getTarget();
@@ -73,7 +73,7 @@ public class CacheMultiStringAspect {
         Collection<String> multiByItem = (Collection<String>)arguments[paramIndex];
 
         //获取操作类
-        CacheOps ops = new OpsForMultiString(cacheAnnotation, keyGenerator, pointMethod, dataClass, redisHelper, multiByItem);
+        CacheOps ops = new OpsForMultiString(cacheAnnotation, keyGenerator, pointMethod, dataType, redisHelper, multiByItem);
 
         //执行对应模板方法
         return templateMethod.runByOpType(ops, cacheAnnotation.type());

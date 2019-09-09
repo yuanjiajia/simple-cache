@@ -10,6 +10,7 @@ import com.hccake.simpleredis.function.VoidMethod;
 import org.springframework.util.DigestUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,7 @@ public class OpsForMultiString extends CacheOps {
      * @param redisHelper    缓存工具类
      * @param multiByItem
      */
-    public OpsForMultiString(CacheForMultiString cacheForString, KeyGenerator keyGenerator, ResultMethod<Object> pointMethod, Class<?> returnType, RedisHelper redisHelper, Collection<String> multiByItem) throws UnsupportedEncodingException {
+    public OpsForMultiString(CacheForMultiString cacheForString, KeyGenerator keyGenerator, ResultMethod<Object> pointMethod, Type returnType, RedisHelper redisHelper, Collection<String> multiByItem) throws UnsupportedEncodingException {
 
         super(redisHelper, pointMethod, returnType);
 

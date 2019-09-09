@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
 /**
@@ -38,7 +39,7 @@ public class NormalTemplateMethod extends AbstractTemplateMethod{
         //缓存查询方法
         Supplier<String> cacheQuery = ops.cacheQuery();
         //返回数据类型
-        Class<?> dataClazz = ops.getReturnType();
+        Type dataClazz = ops.getReturnType();
 
 
         //1.==================尝试从缓存获取数据==========================

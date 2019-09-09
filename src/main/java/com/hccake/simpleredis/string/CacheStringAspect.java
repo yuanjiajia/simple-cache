@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 /**
  * @author Hccake
@@ -52,7 +53,7 @@ public class CacheStringAspect {
         log.debug("=======The string cache aop is executed! method : {}", method.getName());
 
         //方法返回值
-        Class<?> returnType = method.getReturnType();
+        Type genericReturnType = method.getGenericReturnType();
 
         //根据方法的参数 以及当前类对象获得 keyGenerator
         Object target = point.getTarget();
@@ -66,7 +67,7 @@ public class CacheStringAspect {
         CacheForString cacheForString = AnnotationUtils.getAnnotation(method, CacheForString.class);
 
         //获取操作类
-        CacheOps ops = new OpsForString(cacheForString, keyGenerator, pointMethod, returnType, redisHelper);
+        CacheOps ops = new OpsForString(cacheForString, keyGenerator, pointMethod, genericReturnType, redisHelper);
 
         //执行对应模板方法
         return templateMethod.runByOpType(ops, cacheForString.type());

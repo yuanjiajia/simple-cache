@@ -5,6 +5,7 @@ import com.hccake.simpleredis.function.ResultMethod;
 import com.hccake.simpleredis.function.VoidMethod;
 import org.aspectj.lang.ProceedingJoinPoint;
 
+import java.lang.reflect.Type;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -21,7 +22,7 @@ public abstract class CacheOps {
      * @param pointMethod 返回数据类型
      * @param returnType 织入方法
      */
-    public CacheOps(RedisHelper redisHelper, ResultMethod<Object> pointMethod, Class<?> returnType) {
+    public CacheOps(RedisHelper redisHelper, ResultMethod<Object> pointMethod, Type returnType) {
         this.redisHelper = redisHelper;
         this.returnType = returnType;
         this.pointMethod = pointMethod;
@@ -42,7 +43,7 @@ public abstract class CacheOps {
     /**
      * 数据类型
      */
-    private Class<?> returnType;
+    private Type returnType;
 
 
 
@@ -109,7 +110,7 @@ public abstract class CacheOps {
         return cacheDel;
     }
 
-    public Class<?> getReturnType() {
+    public Type getReturnType() {
         return returnType;
     }
 

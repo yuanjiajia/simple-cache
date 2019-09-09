@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 /**
  * @author Hccake
@@ -54,7 +55,7 @@ public class CacheHashAspect {
         log.debug("=======The hash cache aop is executed! method : {}", method.getName());
 
         //方法返回值
-        Class<?> returnType = method.getReturnType();
+        Type returnType = method.getGenericReturnType();
 
         //根据方法的参数 以及当前类对象获得 keyGenerator
         Object target = point.getTarget();
