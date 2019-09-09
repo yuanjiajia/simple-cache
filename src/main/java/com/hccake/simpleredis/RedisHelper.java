@@ -454,19 +454,22 @@ public class RedisHelper {
 
     /**
      * zset 存储
-     *
-     * @param args 添加集合
-     * @param key  key值
      * @author: doujie
      * @date: 2019年9月9日 下午3:57:21
+     * @param args 添加集合
+     * @param args2 对应于集合的score ps:arg 和 args 长度必须一致
+     * @param key key值
      * @return:
      */
-    public boolean zset(List<String> args, String key) {
+    public boolean zset(List<String> args,List<Long> args2,String key) {
+        if(null == args || null == args || (args.size() != args2.size())) {
+            return false;
+        }
         try {
             Set<ZSetOperations.TypedTuple<String>> strs = new HashSet<ZSetOperations.TypedTuple<String>>();
-            for (String str : args) {
+            for(int i = 0;i< args.size();i++){
                 ZSetOperations.TypedTuple<String> objectTypedTuple1 = new DefaultTypedTuple<String>(
-                        str, Double.valueOf(str));
+                        args.get(i),Double.valueOf(args2.get(i)));
                 strs.add(objectTypedTuple1);
             }
             redisTemplate.opsForZSet().add(key, strs);
