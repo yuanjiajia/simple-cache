@@ -3,9 +3,8 @@ package com.hccake.simpleredis.multistring;
 import com.hccake.simpleredis.RedisHelper;
 import com.hccake.simpleredis.core.CacheOps;
 import com.hccake.simpleredis.core.KeyGenerator;
-import com.hccake.simpleredis.template.MultiTemplateMethod;
-import com.hccake.simpleredis.template.TemplateMethod;
 import com.hccake.simpleredis.function.ResultMethod;
+import com.hccake.simpleredis.template.TemplateMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -16,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -34,7 +34,8 @@ public class CacheMultiStringAspect {
     /**
      * 模板方法
      */
-    private static TemplateMethod templateMethod = new MultiTemplateMethod();
+    @Resource(name = "multiTemplateMethod")
+    private TemplateMethod templateMethod;
 
     @Autowired
     private RedisHelper redisHelper;

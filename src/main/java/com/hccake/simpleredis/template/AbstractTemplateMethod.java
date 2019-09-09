@@ -1,6 +1,5 @@
 package com.hccake.simpleredis.template;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hccake.simpleredis.core.CacheOps;
 import com.hccake.simpleredis.core.OpType;
 
@@ -12,35 +11,6 @@ import java.io.IOException;
  * @author wubo, Hccake
  */
 public abstract class AbstractTemplateMethod implements TemplateMethod{
-
-    /**
-     * jackson序列化
-     */
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    /**
-     * 反序列化方法
-     *
-     * @param cacheData
-     * @param clazz
-     * @return
-     * @throws IOException
-     */
-    public static Object deserialization(String cacheData, Class<?> clazz) throws IOException {
-        return OBJECT_MAPPER.readValue(cacheData, clazz);
-    }
-
-    /**
-     * 序列化方法
-     *
-     * @param cacheData
-     * @return
-     * @throws IOException
-     */
-    public static String serialize(Object cacheData) throws IOException {
-        return OBJECT_MAPPER.writeValueAsString(cacheData);
-    }
-
 
 
     /**

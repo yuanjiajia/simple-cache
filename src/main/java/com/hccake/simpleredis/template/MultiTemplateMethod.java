@@ -3,6 +3,9 @@ package com.hccake.simpleredis.template;
 import com.hccake.simpleredis.core.CacheOps;
 import com.hccake.simpleredis.core.RedisCons;
 import com.hccake.simpleredis.function.ResultMethod;
+import com.hccake.simpleredis.serialize.CacheSerializer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.*;
@@ -14,8 +17,12 @@ import java.util.function.Supplier;
  *
  * @author wubo, Hccake
  */
+@Component("multiTemplateMethod")
 public class MultiTemplateMethod extends AbstractTemplateMethod {
 
+
+    @Autowired
+    private CacheSerializer cacheSerializer;
 
     /**
      * cached 类型的模板方法
@@ -53,7 +60,7 @@ public class MultiTemplateMethod extends AbstractTemplateMethod {
                 emptyKeyMap.put(i, null);
                 result.add(null);
             }else{
-                result.add(ops.nullValue(cacheData) ? null : deserialization(cacheData, dataClazz));
+                result.add(ops.nullValue(cacheData) ? null : cacheSerializer.deserialize(cacheData, dataClazz));
             }
         }
 
@@ -65,7 +72,7 @@ public class MultiTemplateMethod extends AbstractTemplateMethod {
 
         //2.==========如果缓存为空  则需查询数据库并更新===============
         //尝试获取锁，只允许一个线程更新缓存
-        if (ops.lock()) {
+        if (ops.lock("1")) {
 
             //TODO 这里应该传入动态的参数 而不应该全量查询
             //从数据库查询数据
@@ -84,7 +91,7 @@ public class MultiTemplateMethod extends AbstractTemplateMethod {
                 result.set(index, data);
 
                 //如果数据库中没数据，填充一个String，防止缓存击穿
-                value = data == null? RedisCons.NULL_VALUE : serialize(data);
+                value = data == null? RedisCons.NULL_VALUE : cacheSerializer.serialize(data);
                 emptyKeyMap.put(index, value);
             }
 
@@ -92,7 +99,7 @@ public class MultiTemplateMethod extends AbstractTemplateMethod {
             ops.cachePut().accept(emptyKeyMap);
 
             //解锁
-            ops.unlock();
+            ops.unlock("1");
         }
 
         //返回数据
@@ -118,7 +125,7 @@ public class MultiTemplateMethod extends AbstractTemplateMethod {
         for (int i = 0; i < dbDatas.size(); i++) {
             dbData = dbDatas.get(i);
             //如果数据库中没数据，填充一个String，防止缓存击穿
-            cacheData = dbData == null? RedisCons.NULL_VALUE : serialize(dbData);
+            cacheData = dbData == null? RedisCons.NULL_VALUE : cacheSerializer.serialize(dbData);
             cacheDatas.add(cacheData);
         }
         //将返回值放置入缓存中

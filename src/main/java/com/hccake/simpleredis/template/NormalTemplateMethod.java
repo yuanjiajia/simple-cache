@@ -3,6 +3,9 @@ package com.hccake.simpleredis.template;
 import com.hccake.simpleredis.core.CacheOps;
 import com.hccake.simpleredis.core.RedisCons;
 import com.hccake.simpleredis.function.ResultMethod;
+import com.hccake.simpleredis.serialize.CacheSerializer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.function.Supplier;
@@ -12,8 +15,12 @@ import java.util.function.Supplier;
  *
  * @author wubo, Hccake
  */
+@Component("normalTemplateMethod")
 public class NormalTemplateMethod extends AbstractTemplateMethod{
 
+
+    @Autowired
+    private CacheSerializer cacheSerializer;
 
     /**
      * cached 类型的模板方法
@@ -40,26 +47,26 @@ public class NormalTemplateMethod extends AbstractTemplateMethod{
         if (ops.nullValue(cacheData)) {
             return null;
         } else if (cacheData != null) {
-            return deserialization(cacheData, dataClazz);
+            return cacheSerializer.deserialize(cacheData, dataClazz);
         }
 
 
         //2.==========如果缓存为空  则需查询数据库并更新===============
         Object dbData = null;
         //尝试获取锁，只允许一个线程更新缓存
-        if (ops.lock()) {
+        if (ops.lock("1")) {
             //有可能其他线程已经更新缓存，这里再次判断缓存是否为空
             cacheData = cacheQuery.get();
             if (cacheData == null) {
                 //从数据库查询数据
                 dbData = ops.pointMethod().run();
                 //如果数据库中没数据，填充一个String，防止缓存击穿
-                cacheData = dbData == null ? RedisCons.NULL_VALUE : serialize(dbData);
+                cacheData = dbData == null ? RedisCons.NULL_VALUE : cacheSerializer.serialize(dbData);
                 //设置缓存
                 ops.cachePut().accept(cacheData);
             }
             //解锁
-            ops.unlock();
+            ops.unlock("1");
             //返回数据
             return dbData;
         } else {
@@ -70,7 +77,7 @@ public class NormalTemplateMethod extends AbstractTemplateMethod{
         if (cacheData == null || ops.nullValue(cacheData)) {
             return null;
         }
-        return deserialization(cacheData, dataClazz);
+        return cacheSerializer.deserialize(cacheData, dataClazz);
     }
 
 
@@ -85,7 +92,7 @@ public class NormalTemplateMethod extends AbstractTemplateMethod{
         Object data = pointMethod.run();
 
         //将返回值放置入缓存中
-        String cacheData = data == null ? RedisCons.NULL_VALUE : serialize(data);
+        String cacheData = data == null ? RedisCons.NULL_VALUE : cacheSerializer.serialize(data);
         ops.cachePut().accept(cacheData);
 
         return data;
