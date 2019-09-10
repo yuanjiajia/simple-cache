@@ -3,9 +3,8 @@ package com.hccake.simpleredis.hash;
 import com.hccake.simpleredis.RedisHelper;
 import com.hccake.simpleredis.core.CacheOps;
 import com.hccake.simpleredis.core.KeyGenerator;
-import com.hccake.simpleredis.template.NormalTemplateMethod;
-import com.hccake.simpleredis.template.TemplateMethod;
 import com.hccake.simpleredis.function.ResultMethod;
+import com.hccake.simpleredis.template.TemplateMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -16,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 /**
  * @author Hccake
@@ -31,7 +32,8 @@ public class CacheHashAspect {
     /**
      * 模板方法
      */
-    private static TemplateMethod templateMethod = new NormalTemplateMethod();
+    @Resource(name = "normalTemplateMethod")
+    private TemplateMethod templateMethod;
 
     @Autowired
     private RedisHelper redisHelper;
@@ -53,7 +55,7 @@ public class CacheHashAspect {
         log.debug("=======The hash cache aop is executed! method : {}", method.getName());
 
         //方法返回值
-        Class<?> returnType = method.getReturnType();
+        Type returnType = method.getGenericReturnType();
 
         //根据方法的参数 以及当前类对象获得 keyGenerator
         Object target = point.getTarget();

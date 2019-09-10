@@ -1,16 +1,20 @@
 
 package com.hccake.simpleredis;
 
+import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -445,5 +449,108 @@ public class RedisHelper {
             return true;
         }
         return false;
+    }
+
+
+    /**
+     * zset 存储
+     * @author: doujie
+     * @date: 2019年9月9日 下午3:57:21
+     * @param args 添加集合
+     * @param args2 对应于集合的score ps:arg 和 args 长度必须一致
+     * @param key key值
+     * @return:
+     */
+    public boolean zset(List<String> args,List<Long> args2,String key) {
+        if(null == args || null == args || (args.size() != args2.size())) {
+            return false;
+        }
+        try {
+            Set<ZSetOperations.TypedTuple<String>> strs = new HashSet<ZSetOperations.TypedTuple<String>>();
+            for(int i = 0;i< args.size();i++){
+                ZSetOperations.TypedTuple<String> objectTypedTuple1 = new DefaultTypedTuple<String>(
+                        args.get(i),Double.valueOf(args2.get(i)));
+                strs.add(objectTypedTuple1);
+            }
+            redisTemplate.opsForZSet().add(key, strs);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 通过索引区间返回有序集合成指定区间内的成员，其中有序集成员按分数值递减(从大到小)顺序排列
+     *
+     * @author: doujie
+     * @date: 2019年9月9日 下午3:57:08
+     * @param:
+     * @return:
+     */
+    public Set<String> reverseRange(String key, long start, long end) {
+        return redisTemplate.opsForZSet().reverseRange(key, start, end);
+    }
+
+    /**
+     * 从小到大
+     *
+     * @author: doujie
+     * @date: 2019年9月9日 下午3:56:56
+     * @param:
+     * @return:
+     */
+    public Set<String> range(String key, long start, long end) {
+        return redisTemplate.opsForZSet().range(key, start, end);
+    }
+
+
+    /**
+     * 与rangeByScore调用方法一样，其中有序集成员按分数值递减(从大到小)顺序排列
+     *
+     * @author: doujie
+     * @date: 2019年9月9日 下午3:56:56
+     * @param:
+     * @return:
+     */
+    public Set<String> reverseRangeByScore(String key, double min, double max) {
+        return redisTemplate.opsForZSet().reverseRangeByScore(key, min, max);
+    }
+
+    /**
+     * 获取有序集合的成员数，内部调用的就是zCard方法
+     *
+     * @author: doujie
+     * @date: 2019年9月9日 下午3:56:56
+     * @param:
+     * @return:
+     */
+    public long zsize(String key) {
+        return redisTemplate.opsForZSet().size(key);
+    }
+
+    /**
+     * 获取指定成员的score值
+     *
+     * @author: doujie
+     * @date: 2019年9月9日 下午3:56:56
+     * @param:
+     * @return:
+     */
+    public double zscore(String key, String args) {
+        return redisTemplate.opsForZSet().score(key, args);
+    }
+
+
+    /**
+     * 移除指定索引位置的成员，其中有序集成员按分数值递增(从小到大)顺序排列 (0，-1)全部
+     *
+     * @author: doujie
+     * @date: 2019年9月9日 下午3:56:56
+     * @param:
+     * @return:
+     */
+    public double removeRange(String key, long start, long end) {
+        return redisTemplate.opsForZSet().removeRange(key, start, end);
     }
 }

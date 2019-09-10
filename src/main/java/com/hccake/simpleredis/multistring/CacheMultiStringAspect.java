@@ -3,9 +3,8 @@ package com.hccake.simpleredis.multistring;
 import com.hccake.simpleredis.RedisHelper;
 import com.hccake.simpleredis.core.CacheOps;
 import com.hccake.simpleredis.core.KeyGenerator;
-import com.hccake.simpleredis.template.MultiTemplateMethod;
-import com.hccake.simpleredis.template.TemplateMethod;
 import com.hccake.simpleredis.function.ResultMethod;
+import com.hccake.simpleredis.template.TemplateMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -16,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -34,7 +34,8 @@ public class CacheMultiStringAspect {
     /**
      * 模板方法
      */
-    private static TemplateMethod templateMethod = new MultiTemplateMethod();
+    @Resource(name = "multiTemplateMethod")
+    private TemplateMethod templateMethod;
 
     @Autowired
     private RedisHelper redisHelper;
@@ -55,7 +56,7 @@ public class CacheMultiStringAspect {
         //参照 fastJson TypeRefence的代码
         //因为multi操作 返回值一定是 List<T> 所以直接取第一个就可以
         Type type = method.getGenericReturnType();
-        Class<?> dataClass = type.getTypeName().equals("void")? null: (Class)((ParameterizedType)type).getActualTypeArguments()[0];
+        Type dataType = type.getTypeName().equals("void")? null: ((ParameterizedType)type).getActualTypeArguments()[0];
 
         //根据方法的参数 以及当前类对象获得 keyGenerator
         Object target = point.getTarget();
@@ -72,7 +73,7 @@ public class CacheMultiStringAspect {
         Collection<String> multiByItem = (Collection<String>)arguments[paramIndex];
 
         //获取操作类
-        CacheOps ops = new OpsForMultiString(cacheAnnotation, keyGenerator, pointMethod, dataClass, redisHelper, multiByItem);
+        CacheOps ops = new OpsForMultiString(cacheAnnotation, keyGenerator, pointMethod, dataType, redisHelper, multiByItem);
 
         //执行对应模板方法
         return templateMethod.runByOpType(ops, cacheAnnotation.type());

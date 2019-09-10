@@ -5,7 +5,7 @@ import com.hccake.simpleredis.function.ResultMethod;
 import com.hccake.simpleredis.function.VoidMethod;
 import org.aspectj.lang.ProceedingJoinPoint;
 
-import java.util.Collections;
+import java.lang.reflect.Type;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -22,7 +22,7 @@ public abstract class CacheOps {
      * @param pointMethod 返回数据类型
      * @param returnType 织入方法
      */
-    public CacheOps(RedisHelper redisHelper, ResultMethod<Object> pointMethod, Class<?> returnType) {
+    public CacheOps(RedisHelper redisHelper, ResultMethod<Object> pointMethod, Type returnType) {
         this.redisHelper = redisHelper;
         this.returnType = returnType;
         this.pointMethod = pointMethod;
@@ -43,7 +43,7 @@ public abstract class CacheOps {
     /**
      * 数据类型
      */
-    private Class<?> returnType;
+    private Type returnType;
 
 
 
@@ -110,7 +110,7 @@ public abstract class CacheOps {
         return cacheDel;
     }
 
-    public Class<?> getReturnType() {
+    public Type getReturnType() {
         return returnType;
     }
 
@@ -167,11 +167,14 @@ public abstract class CacheOps {
      * @return
      */
     public Boolean unlock(String reqId) {
+        redisHelper.del(lockKey);
+        return true;
+        //TODO 此处eval执行会有类型转换异常错误  暂时注释
         //KEYS【1】：key值是为要加的锁定义的字符串常量
         //ARGV【1】：value值是 request id, 用来防止解除了不该解除的锁. 可用 UUID
-        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return " +
+        /*String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return " +
                 "0 end";
-        return redisHelper.eval(script, Collections.singletonList(lockKey), Collections.singletonList(reqId));
+        return redisHelper.eval(script, Collections.singletonList(lockKey), Collections.singletonList(reqId));*/
     }
 
 

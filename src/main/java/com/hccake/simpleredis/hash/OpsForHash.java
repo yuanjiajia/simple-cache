@@ -8,6 +8,7 @@ import com.hccake.simpleredis.core.RedisCons;
 import com.hccake.simpleredis.function.ResultMethod;
 import com.hccake.simpleredis.function.VoidMethod;
 
+import java.lang.reflect.Type;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -26,7 +27,7 @@ public class OpsForHash extends CacheOps {
      * @param returnType     返回类型
      * @param redisHelper   缓存工具类
      */
-    public OpsForHash(CacheForHash cacheForHash, KeyGenerator keyGenerator, ResultMethod<Object> pointMethod, Class<?> returnType, RedisHelper redisHelper) {
+    public OpsForHash(CacheForHash cacheForHash, KeyGenerator keyGenerator, ResultMethod<Object> pointMethod, Type returnType, RedisHelper redisHelper) {
 
         super(redisHelper, pointMethod, returnType);
 
